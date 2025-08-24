@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>전시 그래픽</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+    <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
+</head>
+
+<body>
+    <h1 class="main-title">graph</h1>
+    <h1 class="sub-title">여름의 ···</h1>
+    <canvas id="three-canvas"></canvas>
+
+
+    <section id="detail-page">
+        <button class="back-button">← Home</button>
+        <div class="image-grid">
+            <!-- [수정] 각 grid-item 내부에 description-text div 추가 -->
+            <div class="grid-item">
+                <img src="./images/detail1-1.png" alt="Detail Image 1"
+                    data-description="첫 번째 그래픽 디자인에 대한 설명입니다. 이 작품은...">
+                <div class="description-text"></div>
+            </div>
+            <div class="grid-item">
+                <img src="./images/detail1-2.png" alt="Detail Image 2" data-description="두 번째 작품은 미니멀리즘을 주제로 하여...">
+                <div class="description-text"></div>
+            </div>
+            <div class="grid-item">
+                <img src="./images/detail1-3.png" alt="Detail Image 3" data-description="세 번째 디자인은 강렬한 색상 대비를 통해...">
+                <div class="description-text"></div>
+            </div>
+            <div class="grid-item">
+                <img src="./images/detail1-4.png" alt="Detail Image 4"
+                    data-description="네 번째 그래픽은 타이포그래피의 아름다움을 탐구합니다...">
+                <div class="description-text"></div>
+            </div>
+            <div class="grid-item">
+                <img src="./images/detail1-5.png" alt="Detail Image 5"
+                    data-description="마지막으로, 다섯 번째 작품은 자연과의 조화를 표현하고 있습니다...">
+                <div class="description-text"></div>
+            </div>
+        </div>
+    </section>
+    <script type="module" src="index.js"></script>
+
+
+</body>
+
+</html>

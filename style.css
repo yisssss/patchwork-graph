@@ -1,0 +1,142 @@
+  /* 기본 스타일 초기화 */
+  * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+  }
+
+  body {
+      /* 텍스트 선택 방지 */
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      overflow: hidden;
+      /* 스크롤바 제거 */
+      background-color: #111;
+      /* 기본 배경색 */
+      color: white;
+      /* 기본 글자색 */
+      font-family: 'Pretendard', sans-serif;
+  }
+
+  /* Three.js 캔버스 스타일 */
+  canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      /* 다른 요소들 뒤에 위치 */
+  }
+
+  /* 메인 타이틀 스타일 */
+  .main-title {
+      position: absolute;
+      /* 세로 20%, 가로 50% 위치 */
+      top: 23%;
+      left: 50%;
+      /* transform을 사용해 정확한 중앙 정렬 */
+      transform: translate(-50%, -50%);
+      font-size: 1.5rem;
+      font-weight: 200;
+      letter-spacing: 2px;
+  }
+
+  .sub-title {
+      position: absolute;
+      /* 세로 20%, 가로 50% 위치 */
+      top: 15%;
+      left: 50%;
+      /* transform을 사용해 정확한 중앙 정렬 */
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      font-weight: 200;
+      letter-spacing: 2px;
+  }
+
+
+
+  /* --- 상세 페이지 스타일 --- */
+  #detail-page {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      z-index: 10;
+      padding: 80px 10%;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1.5s ease;
+  }
+
+  #detail-page::-webkit-scrollbar {
+      display: none;
+      /* Chrome, Safari, Opera*/
+  }
+
+  #detail-page {
+      -ms-overflow-style: none;
+      /* IE and Edge */
+      scrollbar-width: none;
+      /* Firefox */
+  }
+
+  #detail-page.visible {
+      opacity: 1;
+      pointer-events: auto;
+  }
+
+  .image-grid {
+      width: 100%;
+  }
+
+  .grid-item {
+      width: 48%;
+      margin-bottom: 20px;
+  }
+
+  .image-grid img {
+      width: 100%;
+      height: auto;
+      display: block;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+  }
+
+  .image-grid img:hover {
+      transform: scale(1.03);
+  }
+
+  .back-button {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      z-index: 11;
+  }
+
+  .description-text {
+      padding: 0 0px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease, padding 0.2s ease;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.8);
+  }
+
+  .description-text.visible {
+      padding: 15px 0px;
+      max-height: 200px;
+  }
