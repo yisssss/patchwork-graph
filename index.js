@@ -214,7 +214,7 @@ async function createCards() {
 
         // (1) back.svg (고해상도 로드)
         const { tex: backTex, aspect: backAspect } = await loadSVGAsTexture(
-            `public/mainpage/SVG/back${i + 1}.svg`,
+            `mainpage/SVG/back${i + 1}.svg`,
             4096
         );
         const backHeight = CARD_HEIGHT;
@@ -236,7 +236,7 @@ async function createCards() {
 
         // (2) card[i].svg 이미지
         const offset = cardOffsets[i];
-        const { tex: cardTex, aspect } = await loadSVGAsTexture(`public/mainpage/SVG/card${i + 1}.svg`, 4096);
+        const { tex: cardTex, aspect } = await loadSVGAsTexture(`mainpage/SVG/card${i + 1}.svg`, 4096);
 
         const height = cardSizeRate * 0.9;
         const width = height * aspect;
@@ -259,7 +259,7 @@ async function createCards() {
 
         // (3) front.svg (고해상도 로드)
         const { tex: frontTex, aspect: frontAspect } = await loadSVGAsTexture(
-            `public/mainpage/SVG/front${i + 1}.svg`,
+            `mainpage/SVG/front${i + 1}.svg`,
             4096
         );
         const frontHeight = CARD_HEIGHT;
@@ -281,7 +281,7 @@ async function createCards() {
 
         // (4) name.svg (multiply blend)
         const nameTex = textureLoader.load(
-            `public/mainpage/SVG/name${i + 1}.svg`,
+            `mainpage/SVG/name${i + 1}.svg`,
             (tex) => {
                 // 원본 비율 계산
                 const aspect = tex.image.width / tex.image.height;
