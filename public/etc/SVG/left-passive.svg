@@ -3,7 +3,8 @@
   <defs>
     <style>
       .cls-1 {
-        fill: #ff0;
+        fill: none;
+        stroke-width: 1.07px;
       }
 
       .cls-1, .cls-2 {
@@ -12,15 +13,14 @@
       }
 
       .cls-2 {
-        fill: none;
-        stroke-width: 1.07px;
+        fill: #fff100;
       }
     </style>
   </defs>
   <g id="_레이어_1-2" data-name="레이어 1">
-    <g id="uuid-2ecadd55-b172-4ae7-a9ea-ee2159e2175a" data-name=" 레이어 1-2">
-      <circle class="cls-1" cx="10.94" cy="10.94" r="10.44"/>
+    <g id="uuid-7de975d1-fb15-42de-a05d-4088b9c28e39" data-name=" 레이어 1-2">
+      <circle class="cls-2" cx="10.94" cy="10.94" r="10.44"/>
     </g>
-    <polyline class="cls-2" points="14.58 5.12 5.69 10.94 14.58 16.76"/>
+    <polyline class="cls-1" points="14.58 5.12 5.69 10.94 14.58 16.76"/>
   </g>
 </svg>

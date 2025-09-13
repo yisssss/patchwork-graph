@@ -3,6 +3,9 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      cursor: none;
+      /* 기본 커서 없애기 */
+
   }
 
   body {
@@ -247,8 +250,8 @@
       word-break: keep-all;
   }
 
-.caption h2{
-          color: #1d2088;
+  .caption h2 {
+      color: #1d2088;
       font-family: "sandoll-myeongjoneo1", sans-serif;
       font-style: normal;
       position: relative;
@@ -260,8 +263,8 @@
   }
 
 
-  .caption h3{
-          color: #1d2088;
+  .caption h3 {
+      color: #1d2088;
       font-family: "sandoll-myeongjoneo1", sans-serif;
       font-style: normal;
       position: relative;
@@ -269,14 +272,14 @@
       font-weight: 400;
       text-align: center;
       letter-spacing: 0px;
-      padding-bottom:24px;
-              white-space: pre-line;
+      padding-bottom: 24px;
+      white-space: pre-line;
 
 
   }
 
-    .caption p{
-          color: #1d2088;
+  .caption p {
+      color: #1d2088;
       font-family: "sandoll-myeongjoneo1", sans-serif;
       font-style: normal;
       position: relative;
@@ -284,8 +287,23 @@
       font-weight: 400;
       text-align: center;
       letter-spacing: 0px;
-      padding-bottom:12px;
-        white-space: pre-line;
+      padding-bottom: 12px;
+      white-space: pre-line;
+
+  }
+
+  .caption span {
+      width: 300px;
+      color: #1d2088;
+      font-family: "sandoll-myeongjoneo1", sans-serif;
+      font-style: normal;
+      position: relative;
+      font-size: 0.8rem;
+      font-weight: 400;
+      text-align: center;
+      letter-spacing: 0px;
+      padding-bottom: 12px;
+      white-space: pre-line;
 
   }
 

@@ -30,8 +30,48 @@ const cards = [];
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-let hideLoaderTime = 0;
+let hideLoaderTime = 2000;
 
+const textureLoader = new THREE.TextureLoader();
+const imageCache = {}; // 전역 캐시
+// ✅ public/ 은 glob에서 쓰지 않는다. src 기준으로 detailpage만 잡기
+const modules = import.meta.glob('/detailpage/**/*.{png,jpg,jpeg,svg}', { eager: true, import: 'default' });
+
+const detailImagePaths = Object.keys(modules).map((path) => {
+    // 앞의 /detailpage/ 경로는 그대로 쓰면 됨
+    return `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`;
+});
+
+console.log(detailImagePaths);
+
+
+async function preloadImages(paths) {
+    await Promise.all(
+        paths.map(
+            (p) =>
+                new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        imageCache[p] = img;
+                        resolve();
+                        console.log("✅ loaded:", img.src);
+                    };
+                    img.onerror = () => {
+                        reject;
+                        console.error("❌ failed to load:", img.src);
+                    };
+                    img.src = `${import.meta.env.BASE_URL}${p}`;
+                })
+        )
+    );
+    console.log("✅ All detail images preloaded");
+}
+
+function getImage(path) {
+    return imageCache[path];
+}
+
+await preloadImages(detailImagePaths);
 
 function init() {
     // 1. 렌더러 설정
@@ -606,6 +646,11 @@ async function makeCards(section, wrap) {
         const card = document.createElement("div");
         card.className = "card";
 
+        // ✅ 카드 높이 조건
+        if (section === 2 || section === 7) {
+            card.style.height = "1080px";
+        }
+
         const angle = (Math.random() * 14) - 7;
         gsap.set(card, { rotate: angle });
 
@@ -637,7 +682,7 @@ async function makeCards(section, wrap) {
 
                 for (const ext of exts) {
                     const url = `${basePath}.${ext}`;
-                    if (await exists(url)) {   // ✅ 실제 파일 검사
+                    if (await exists(url)) {
                         found = { url, ext };
                         break;
                     }
@@ -655,7 +700,6 @@ async function makeCards(section, wrap) {
             el.style.display = (workIndex === "1") ? "block" : "none";
             slider.appendChild(el);
             images.push({ el, work });
-
         }
 
         // --- 캡션 ---
@@ -665,7 +709,8 @@ async function makeCards(section, wrap) {
         capArtist.textContent = artistObj.artist;
         const capTitle = document.createElement("h2");
         const capMedium = document.createElement("p");
-        const capInfo = document.createElement("p");
+        const capInfo = document.createElement("p"); // ✅ p → div (flex 배치 용이)
+
         captionBox.appendChild(capArtist);
         captionBox.appendChild(capTitle);
         captionBox.appendChild(capMedium);
@@ -689,9 +734,28 @@ async function makeCards(section, wrap) {
                 });
                 capTitle.textContent = images[idx].work.title;
                 capMedium.textContent = images[idx].work.medium;
-                capInfo.textContent = images[idx].work.information;
-                current = idx;
 
+                // ✅ section == 2 → information 배열 처리
+                capInfo.innerHTML = "";
+                if (section === 2 && Array.isArray(images[idx].work.information)) {
+                    images[idx].work.information.forEach(({ name, comment }) => {
+                        const row = document.createElement("div");
+                        row.style.display = "flex";
+                        row.style.gap = "1rem"; // 이름과 코멘트 간격
+                        const nameEl = document.createElement("p");
+                        nameEl.textContent = name;
+                        nameEl.style.fontWeight = "bold";
+                        const commentEl = document.createElement("span");
+                        commentEl.textContent = comment;
+                        row.appendChild(nameEl);
+                        row.appendChild(commentEl);
+                        capInfo.appendChild(row);
+                    });
+                } else {
+                    capInfo.textContent = images[idx].work.information || "";
+                }
+
+                current = idx;
                 prev.style.visibility = (current === 0) ? "hidden" : "visible";
                 next.style.visibility = (current === images.length - 1) ? "hidden" : "visible";
             }
@@ -708,7 +772,37 @@ async function makeCards(section, wrap) {
             const work = works["1"];
             capTitle.textContent = work.title;
             capMedium.textContent = work.medium;
-            capInfo.textContent = work.information;
+
+            capInfo.innerHTML = "";
+            if (section === 2 && Array.isArray(work.information)) {
+                work.information.forEach(({ name, comment }) => {
+                    const row = document.createElement("div");
+                    row.style.display = "flex";
+                    row.style.gap = "2rem";
+                    const nameEl = document.createElement("p");
+                    nameEl.textContent = name;
+                    nameEl.style.fontWeight = "bold";
+                    const commentEl = document.createElement("span");
+                    commentEl.textContent = comment;
+                    row.appendChild(nameEl);
+                    row.appendChild(commentEl);
+                    capInfo.appendChild(row);
+                });
+            } else {
+                capInfo.textContent = work.information || "";
+            }
+        }
+        if (section === 8) {
+const infoPs = card.querySelectorAll(".caption p");
+            if (infoPs.length > 1) {
+                const infoP = infoPs[1];
+                const link = document.createElement("a");
+                link.href = "https://www.instagram.com/graph._.party/";
+                link.target = "_blank";
+                link.textContent = infoP.textContent;
+                infoP.textContent = "";      // 기존 텍스트 지우고
+                infoP.appendChild(link);     // <a> 삽입
+            }
         }
 
         wrap.appendChild(card);
@@ -922,3 +1016,4 @@ function onMouseMove(event) {
         }
     }
 }
+
