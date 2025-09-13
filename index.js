@@ -214,9 +214,10 @@ async function createCards() {
 
         // (1) back.svg (고해상도 로드)
         const { tex: backTex, aspect: backAspect } = await loadSVGAsTexture(
-            `mainpage/SVG/back${i + 1}.svg`,
+            `${import.meta.env.BASE_URL}mainpage/SVG/back${i + 1}.svg`,
             4096
         );
+
         const backHeight = CARD_HEIGHT;
         const backWidth = backHeight * backAspect;
 
@@ -236,8 +237,10 @@ async function createCards() {
 
         // (2) card[i].svg 이미지
         const offset = cardOffsets[i];
-        const { tex: cardTex, aspect } = await loadSVGAsTexture(`mainpage/SVG/card${i + 1}.svg`, 4096);
-
+        const { tex: cardTex, aspect } = await loadSVGAsTexture(
+            `${import.meta.env.BASE_URL}mainpage/SVG/card${i + 1}.svg`,
+            4096
+        );
         const height = cardSizeRate * 0.9;
         const width = height * aspect;
 
@@ -259,7 +262,7 @@ async function createCards() {
 
         // (3) front.svg (고해상도 로드)
         const { tex: frontTex, aspect: frontAspect } = await loadSVGAsTexture(
-            `mainpage/SVG/front${i + 1}.svg`,
+            `${import.meta.env.BASE_URL}mainpage/SVG/front${i + 1}.svg`,
             4096
         );
         const frontHeight = CARD_HEIGHT;
@@ -281,13 +284,11 @@ async function createCards() {
 
         // (4) name.svg (multiply blend)
         const nameTex = textureLoader.load(
-            `mainpage/SVG/name${i + 1}.svg`,
+            `${import.meta.env.BASE_URL}mainpage/SVG/name${i + 1}.svg`,
             (tex) => {
-                // 원본 비율 계산
                 const aspect = tex.image.width / tex.image.height;
-                const height = CARD_HEIGHT * 0.08; // 카드 높이 기준으로 비율 지정
+                const height = CARD_HEIGHT * 0.08;
                 const width = height * aspect;
-
                 nameMesh.geometry.dispose();
                 nameMesh.geometry = new THREE.PlaneGeometry(width, height);
             }
@@ -749,7 +750,7 @@ function moveDetailPage(section, scroller) {
 
     // === 버튼 상태 세팅 ===
     function setArrowState(btn, side, state) {
-        btn.style.backgroundImage = `url('public/etc/SVG/${side}-${state}.svg')`; // vite 기준 /public 경로는 /로 접근
+        btn.style.backgroundImage = `url('${import.meta.env.BASE_URL}etc/SVG/${side}-${state}.svg')`;
         btn.style.backgroundRepeat = "no-repeat";
         btn.style.backgroundPosition = "center";
         btn.style.backgroundSize = "contain";
