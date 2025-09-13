@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_레이어_2" data-name="레이어 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21.88 21.88">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #ff0;
+        stroke: #1d2974;
+        stroke-miterlimit: 10;
+      }
+    </style>
+  </defs>
+  <g id="_레이어_1-2" data-name="레이어 1">
+    <g>
+      <g id="uuid-760123d8-6f50-4baf-999e-c905357888e2" data-name=" 레이어 1-2">
+        <circle class="cls-1" cx="10.94" cy="10.94" r="10.44"/>
+      </g>
+      <polyline class="cls-1" points="7.3 5.12 16.19 10.94 7.3 16.76"/>
+    </g>
+  </g>
+</svg>
