@@ -3,7 +3,7 @@
   <defs>
     <style>
       .cls-1 {
-        fill: #ff0;
+        fill: #fff100;
         stroke: #1d2974;
         stroke-miterlimit: 10;
         stroke-width: 1.07px;
@@ -11,7 +11,7 @@
     </style>
   </defs>
   <g id="_레이어_1-2" data-name="레이어 1">
-    <g id="uuid-584303c8-0f25-41b5-9666-18dea2203ea6" data-name=" 레이어 1-2">
+    <g id="uuid-6992bc9d-3d62-4cc1-94eb-8c2b88c2fb41" data-name=" 레이어 1-2">
       <circle class="cls-1" cx="10.97" cy="10.97" r="10.44"/>
     </g>
   </g>
