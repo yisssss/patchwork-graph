@@ -155,41 +155,6 @@ function hideLoader() {
     loader.classList.add("hidden");
 }
 
-async function loadBackShapes() {
-    const res = await fetch("public/mainpage/back.json");
-    return await res.json();
-}
-
-async function loadFrontShapes() {
-    const res = await fetch("public/mainpage/front.json");
-    return await res.json();
-}
-
-function makeShapeTexture(points, size = 1024, fill = "#fff100") {
-    const canvas = document.createElement("canvas");
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext("2d");
-    ctx.scale(sizeRate, sizeRate);
-
-    ctx.clearRect(0, 0, size, size);
-    ctx.beginPath();
-    ctx.moveTo(points[0][0], points[0][1]);
-    for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i][0], points[i][1]);
-    }
-    ctx.closePath();
-    ctx.fillStyle = fill;
-    ctx.fill();
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.anisotropy = renderer.capabilities.getMaxAnisotropy?.() ?? 4;
-    texture.needsUpdate = true;
-    return texture;
-}
-
-
-
 // 카드별 card.svg 위치/회전값 정의
 const cardOffsets = [
     { x: 0.3, y: -0.2, z: 0.01, rotZ: 0 },   // card0
@@ -243,8 +208,6 @@ async function createCards() {
     const CARD_HEIGHT = 3;
 
     const textureLoader = new THREE.TextureLoader();
-    const backShapes = await loadBackShapes();
-    const frontShapes = await loadFrontShapes();
 
     for (let i = 0; i < CARD_COUNT; i++) {
         const cardGroup = new THREE.Group();
