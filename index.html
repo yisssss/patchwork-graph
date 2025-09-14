@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>패치워크 7월의 그라프</title>
     <link rel="stylesheet" href="https://use.typekit.net/txi7web.css">
     <script>
@@ -15,21 +15,24 @@
             },
                 h = d.documentElement, t = setTimeout(function () { h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive"; }, config.scriptTimeout), tk = d.createElement("script"), f = false, s = d.getElementsByTagName("script")[0], a; h.className += " wf-loading"; tk.src = 'https://use.typekit.net/' + config.kitId + '.js'; tk.async = true; tk.onload = tk.onreadystatechange = function () { a = this.readyState; if (f || a && a != "complete" && a != "loaded") return; f = true; clearTimeout(t); try { Typekit.load(config) } catch (e) { } }; s.parentNode.insertBefore(tk, s)
         })(document);
-    </script>
+    </script>
+    
     <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
 
-  <script type="module" crossorigin src="/patchwork-graph/assets/index-CWPuPxwH.js"></script>
-  <link rel="stylesheet" crossorigin href="/patchwork-graph/assets/index-_XKOo03e.css">
+  <script type="module" crossorigin src="/patchwork-graph/assets/index-0cd25c8a.js"></script>
+  <link rel="modulepreload" crossorigin href="/patchwork-graph/assets/three-8af6facb.js">
+  <link rel="modulepreload" crossorigin href="/patchwork-graph/assets/gsap-398e1ffc.js">
+  <link rel="stylesheet" href="/patchwork-graph/assets/index-35d1e8f2.css">
 </head>
 
 <body>
-    <div class="cursor"> <img src="data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20id='_레이어_2'%20data-name='레이어%202'%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2021.96%2021.96'%3e%3cdefs%3e%3cstyle%3e%20.cls-1%20{%20fill:%20%23fff100;%20stroke:%20%231d2088;%20stroke-miterlimit:%2010;%20stroke-width:%201.07px;%20}%20%3c/style%3e%3c/defs%3e%3cg%20id='_레이어_1-2'%20data-name='레이어%201'%3e%3ccircle%20class='cls-1'%20cx='10.98'%20cy='10.98'%20r='10.44'/%3e%3c/g%3e%3c/svg%3e"></div>
+    <div class="cursor"> <img src="/patchwork-graph/assets/click1-84dfc89c.svg"></div>
     <div id="loader">
-        <img class="loader-img" src="/patchwork-graph/assets/title1-C7DPJduy.svg" alt="loading" />
+        <img class="loader-img" src="/patchwork-graph/assets/title1-944f8f4e.svg" alt="loading" />
     </div>
     <div class="main-page">
         <h1 class="main-title">Welcome to Graph's Summer Party!</h1>
-        <h1 class="sub-title">지난 여름, 끈적끈적한 더위를 이겨내기 위해 팀 Graph는 여름나기 파티를 진행했습니다. </br> 어느덧 무더위가 사그라들어 새로운 계절을 맞이할 준비를 하는
+        <h1 class="sub-title">지난 여름, 끈적끈적한 더위를 이겨내기 위해  </br> 팀 Graph는 여름나기 파티를 진행했습니다. </br> 어느덧 무더위가 사그라들어 새로운 계절을 맞이할 준비를 하는
             지금,
             </br> 지나간
             여름을 추억하기 위한 파티를 열게 되었습니다. </br> 그라프의 여름 파티에 여러분을 초대합니다! </h1>
@@ -46,7 +49,8 @@
     <canvas id="three-canvas"></canvas>
 
     <div id="detail-page" class="hidden">
-    </div>
+    </div>
+    
 
 
 </body>
