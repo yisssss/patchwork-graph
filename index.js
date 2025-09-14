@@ -24,7 +24,7 @@ export {
     UnrealBloomPass,
 };
 
-//console.log = function () { };
+console.log = function () { };
 console.warn = function () { };
 console.error = function () { };
 console.info = function () { };
@@ -42,41 +42,45 @@ const imageCache = {};
 
 const base = import.meta.env.BASE_URL || "/";
 const res = await fetch(`${base}etc/detail-files.json`);
-const detailImagePaths = await res.json();
+const fileMap = await res.json();
 
-console.log(detailImagePaths);
+console.log(fileMap);
 
+async function preloadImages(fileMap) {
+    // fileMap = { "11": { "1-1": "detailpage/11/1-1.jpeg", ... }, ... }
+    const paths = Object.values(fileMap).flatMap(sectionObj => Object.values(sectionObj));
 
-async function preloadImages(paths) {
     await Promise.all(
-        paths
-            .filter(p => !p.match(/\.(mp4|webm|mov)$/i)) // ✅ 영상 제외
-            .map(
-                (p) =>
-                    new Promise((resolve, reject) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            const key = p.replace(/^\/+/, '').replace(import.meta.env.BASE_URL, '');
-                            imageCache[key] = img;
-                            resolve();
-                        };
-                        img.onerror = () => {
-                            reject;
-                            console.error("❌ failed to load:", img.src);
-                        };
-                        img.src = `${import.meta.env.BASE_URL}${p}`;
-                    })
-            )
+        paths.map(
+            (p) =>
+                new Promise((resolve, reject) => {
+                    if (p.match(/\.(mp4|webm|mov)$/i)) {
+                        // 비디오는 이미지처럼 preload 안 함
+                        return resolve();
+                    }
+                    const img = new Image();
+                    img.onload = () => {
+                        imageCache[p] = img;
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        console.error("❌ failed to load:", p);
+                        resolve();
+                    };
+                    img.src = `${import.meta.env.BASE_URL}${p}`;
+                })
+        )
     );
     console.log("✅ All detail images preloaded");
 }
+
 
 function getImage(path) {
     const key = path.replace(/^\/+/, '').replace(import.meta.env.BASE_URL, '');
     return imageCache[key];
 }
 
-await preloadImages(detailImagePaths);
+await preloadImages(fileMap);
 
 function init() {
     // 1. 렌더러 설정
@@ -206,7 +210,7 @@ const cardOffsets = [
     { x: 0, y: -0.4, z: 0.01, rotZ: 0 },    // card1
     { x: -0.1, y: -0.2, z: 0.01, rotZ: 0 },   // card2
     { x: 0, y: 0.1, z: 0.01, rotZ: 0 },  // card3
-    { x: -0.1, y: 0, z: 0.01, rotZ: 0 },   // card4
+    { x: -0.05, y: 0, z: 0.01, rotZ: 0 },   // card4
     { x: 0, y: -0.2, z: 0.01, rotZ: 0 },   // card5
     { x: -0.15, y: -0.2, z: 0.01, rotZ: 0 },   // card5
     { x: 0, y: -0.3, z: 0.01, rotZ: 0 },   // card5
@@ -681,50 +685,44 @@ async function makeCards(section, wrap) {
         const workKeys = Object.keys(works);
         let images = [];
 
-        for (const workIndex of workKeys) {
-            const work = works[workIndex];
-            const basePath = `${base}detailpage/${section}/${artistIndex}-${workIndex}`;
-            let el;
+for (const workIndex of workKeys) {
+        const work = works[workIndex];   // ✅ 다시 추가
 
-            if (section === 2 || section === 7) {
-                // ✅ ch2, ch7은 무조건 video
-                el = document.createElement("video");
-                el.src = `${basePath}.mp4`;
-                el.loop = true;
-                el.playsInline = true;
-                el.muted = true;
-                el.controls = true;
-            } else {
-                const exts = ["png", "jpg", "jpeg", "gif"];
-                let found = null;
+    const key = `${artistIndex}-${workIndex}`;
+    const filePath = fileMap[section]?.[key];  // ✅ JSON에서 확정된 경로 가져오기
+    let el;
 
-                for (const ext of exts) {
-                    const url = `${basePath}.${ext}`;
-                    if (await exists(url)) {
-                        found = { url, ext };
-                        break;
-                    }
-                }
+    if (!filePath) {
+        console.warn("파일 없음:", section, key);
+        continue;
+    }
 
-                if (!found) {
-                    console.warn("파일 없음:", basePath);
-                    continue;
-                }
-                el = document.createElement("img");
-                const relUrl = `detailpage/${section}/${artistIndex}-${workIndex}.${found.ext}`;
-                const cached = getImage(relUrl);
-                if (cached) {
-                    el.src = cached.src;
-                } else {
-                    el.src = `${base}${relUrl}`;
-                }
-                el.alt = work.title;
-            }
+    if (section === 2 || section === 7 && filePath.endsWith(".mp4")) {
+        // ✅ ch2, ch7은 무조건 video
+        el = document.createElement("video");
+        el.src = `${base}${filePath}`;
+        el.loop = true;
+        el.playsInline = true;
+        el.muted = true;
+        el.controls = true;
+    } else {
+        // ✅ 확장자 후보 탐색 대신 fileMap에 확정된 경로 사용
+        el = document.createElement("img");
 
-            el.style.display = (workIndex === "1") ? "block" : "none";
-            slider.appendChild(el);
-            images.push({ el, work });
+        const cached = getImage(filePath);   // ✅ preload 캐시 먼저 확인
+        if (cached) {
+            el.src = cached.src;             // 메모리 캐시 사용
+        } else {
+            el.src = `${base}${filePath}`;   // fallback
         }
+        el.alt = works[workIndex].title;
+    }
+
+    el.style.display = (workIndex === "1") ? "block" : "none";
+    slider.appendChild(el);
+    images.push({ el, work });
+}
+
 
         // --- 캡션 ---
         const captionBox = document.createElement("div");
