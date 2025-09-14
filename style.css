@@ -173,6 +173,8 @@
       background: #fff100;
       display: none;
       opacity: 0;
+            cursor: none;
+
   }
 
   #detail-page.visible {
@@ -318,8 +320,9 @@
       height: 32px;
       border: none;
       background: transparent center/contain no-repeat;
-      cursor: pointer;
       transition: transform 0.2s ease;
+                  cursor: none;
+
   }
 
   .img-prev {
@@ -338,7 +341,7 @@
 
   .img-prev:hover,
   .img-next:hover {
-      transform: translateY(-50%) scale(1.2);
+      transform: translateY(-50%) scale(1.5);
       /* ✅ hover 시 살짝 확대 */
   }
 
@@ -348,6 +351,7 @@
       bottom: 0;
       z-index: 60;
       padding: 12px 16px;
+
   }
 
   .back-button {
@@ -366,6 +370,12 @@
       z-index: 11;
   }
 
+    .back-button:hover {
+      background: #1d2088;
+      border: 2px solid #111;
+
+  }
+
   .back-button:active {
       background: #1d2088;
       border: 2px solid #111;
@@ -378,23 +388,21 @@
       transform: translateX(-50%);
       max-width: 800px;
       margin: 120px auto;
-      padding: 0 16px;
+      padding-top: 148px;
       text-align: center;
   }
 
   .detail-intro h1 {
       color: #1d2088;
-      font-family: "altesse-std-24pt", "sandoll-myeongjoneo1", sans-serif;
-      font-weight: 500;
+      font-family: "sandoll-myeongjoneo1", sans-serif;
+      font-weight: 600;
       font-style: normal;
       position: relative;
       width: 800px;
-      top: 13%;
       left: 50%;
       /* transform을 사용해 정확한 중앙 정렬 */
       transform: translate(-50%, -50%);
-      font-size: 3rem;
-      font-weight: 200;
+      font-size: 2rem;
       text-align: center;
       letter-spacing: 2px;
   }
@@ -417,21 +425,22 @@
   }
 
 
-  .detail-intro l {
+  .detail-intro p {
       color: #1d2088;
       font-family: "sandoll-myeongjoneo1", sans-serif;
-      font-weight: 500;
+      font-weight: 400;
       font-style: normal;
       position: relative;
       width: 800px;
-      top: 30%;
       left: 50%;
       /* transform을 사용해 정확한 중앙 정렬 */
       transform: translate(-50%, -50%);
       font-size: 1rem;
-      font-weight: 200;
       text-align: center;
-      letter-spacing: 2px;
+      letter-spacing: 0px;
+      line-height: 24px;
+            white-space: pre-line;
+    padding-top:120px;
   }
 
 
@@ -452,5 +461,5 @@
       height: 32px;
       border: none;
       background: none;
-      cursor: pointer;
+      cursor: none;
   }

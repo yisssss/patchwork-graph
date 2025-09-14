@@ -24,51 +24,56 @@ export {
     UnrealBloomPass,
 };
 
+//console.log = function () { };
+console.warn = function () { };
+console.error = function () { };
+console.info = function () { };
+
 let renderer, scene, camera, controls, canvasElement;
 const cards = [];
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-let hideLoaderTime = 2000;
+let hideLoaderTime = 3000;
 
 const textureLoader = new THREE.TextureLoader();
-const imageCache = {}; // 전역 캐시
-// ✅ public/ 은 glob에서 쓰지 않는다. src 기준으로 detailpage만 잡기
-const modules = import.meta.glob('/detailpage/**/*.{png,jpg,jpeg,svg}', { eager: true, import: 'default' });
+const imageCache = {};
 
-const detailImagePaths = Object.keys(modules).map((path) => {
-    // 앞의 /detailpage/ 경로는 그대로 쓰면 됨
-    return `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`;
-});
+const base = import.meta.env.BASE_URL || "/";
+const res = await fetch(`${base}etc/detail-files.json`);
+const detailImagePaths = await res.json();
 
 console.log(detailImagePaths);
 
 
 async function preloadImages(paths) {
     await Promise.all(
-        paths.map(
-            (p) =>
-                new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        imageCache[p] = img;
-                        resolve();
-                        console.log("✅ loaded:", img.src);
-                    };
-                    img.onerror = () => {
-                        reject;
-                        console.error("❌ failed to load:", img.src);
-                    };
-                    img.src = `${import.meta.env.BASE_URL}${p}`;
-                })
-        )
+        paths
+            .filter(p => !p.match(/\.(mp4|webm|mov)$/i)) // ✅ 영상 제외
+            .map(
+                (p) =>
+                    new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const key = p.replace(/^\/+/, '').replace(import.meta.env.BASE_URL, '');
+                            imageCache[key] = img;
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            reject;
+                            console.error("❌ failed to load:", img.src);
+                        };
+                        img.src = `${import.meta.env.BASE_URL}${p}`;
+                    })
+            )
     );
     console.log("✅ All detail images preloaded");
 }
 
 function getImage(path) {
-    return imageCache[path];
+    const key = path.replace(/^\/+/, '').replace(import.meta.env.BASE_URL, '');
+    return imageCache[key];
 }
 
 await preloadImages(detailImagePaths);
@@ -597,10 +602,13 @@ async function buildDetailPage(section) {
     // 3) 인트로 섹션
     const intro = document.createElement("section");
     intro.className = "detail-intro";
+
+    const introData = await loadSectionIntro(section);
+
     intro.innerHTML = `
-      <h1>Section ${section}</h1>
-      <p>이 섹션의 소개 문구가 들어갑니다. (나중에 txt 로드로 교체)</p>
-    `;
+  <h1>${introData.title}</h1>
+  <p>${introData.description}</p>
+`;
     scroller.appendChild(intro);
 
     // 4) 카드 스택
@@ -629,6 +637,16 @@ async function buildDetailPage(section) {
     ).then(() => ScrollTrigger.refresh());
     return stack; // ✅ stack을 반환
 }
+
+async function loadSectionIntro(section) {
+    const base = import.meta.env.BASE_URL || "/";
+    const res = await fetch(`${base}etc/section-intro.json`);
+    const data = await res.json();
+
+    // 해당 섹션 정보 없으면 fallback
+    return data[section] || { title: `${section}번째 파티`, description: "" };
+}
+
 
 async function makeCards(section, wrap) {
     let data = {};
@@ -693,7 +711,13 @@ async function makeCards(section, wrap) {
                     continue;
                 }
                 el = document.createElement("img");
-                el.src = found.url;
+                const relUrl = `detailpage/${section}/${artistIndex}-${workIndex}.${found.ext}`;
+                const cached = getImage(relUrl);
+                if (cached) {
+                    el.src = cached.src;
+                } else {
+                    el.src = `${base}${relUrl}`;
+                }
                 el.alt = work.title;
             }
 
@@ -793,7 +817,8 @@ async function makeCards(section, wrap) {
             }
         }
         if (section === 8) {
-const infoPs = card.querySelectorAll(".caption p");
+            console.log("섹션 8");
+            const infoPs = card.querySelectorAll(".caption p");
             if (infoPs.length > 1) {
                 const infoP = infoPs[1];
                 const link = document.createElement("a");
@@ -801,6 +826,8 @@ const infoPs = card.querySelectorAll(".caption p");
                 link.target = "_blank";
                 link.textContent = infoP.textContent;
                 infoP.textContent = "";      // 기존 텍스트 지우고
+                console.log("링크 삽입");
+
                 infoP.appendChild(link);     // <a> 삽입
             }
         }
@@ -852,7 +879,6 @@ function moveDetailPage(section, scroller) {
         btn.style.width = "32px";
         btn.style.height = "32px";
         btn.style.border = "none";
-        btn.style.cursor = "pointer";
     }
 
     setArrowState(prevBtn, "left", "passive");
