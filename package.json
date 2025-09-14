@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:ios": "vite build --mode ios",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist",
+    "deploy:ios": "npm run build:ios && gh-pages -d dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "gen:detail": "node genDetailList.js"
   },
@@ -23,6 +25,8 @@
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",
-    "vite": "^7.1.3"
+    "vite": "^4.5.3",
+    "autoprefixer": "^10.4.16",
+    "terser": "^5.24.0"
   }
 }

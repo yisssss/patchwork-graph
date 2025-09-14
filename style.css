@@ -93,7 +93,7 @@
   .main-title {
       position: absolute;
       width: 800px;
-      top: 13%;
+      top: 10%;
       left: 50%;
       /* transform을 사용해 정확한 중앙 정렬 */
       transform: translate(-50%, -50%);
@@ -133,7 +133,7 @@
   .menu {
       position: absolute;
       width: 800px;
-      top: 68%;
+      top: 71%;
       left: 50%;
       /* transform을 사용해 정확한 중앙 정렬 */
       transform: translate(-50%, -50%);
@@ -462,4 +462,55 @@
       border: none;
       background: none;
       cursor: none;
+  }
+
+
+  @media (max-width: 723px) {
+    
+      .main-title {
+          font-size: 1.5rem;
+          top: 12%;
+      }
+
+      .sub-title {
+        width: 90vw;
+          font-size: 0.6rem;
+          top: 20%;
+          line-height: 160%;
+          white-space: nowrap;
+      }
+
+      .sub-title2 {
+          font-size: 1.5rem;
+          top: 36%;
+      }
+
+      .menu {
+          font-size: 0.8rem;
+          top: 58%;
+          line-height: 350%;
+      }
+
+      .detail-intro h1 {
+          font-size: 1.2rem;
+      }
+
+      .detail-intro p {
+          font-size: 0.8rem;
+          padding-top: 80px;
+      }
+
+      .card {
+          width: 95vw;
+          min-height: 500px;
+      }
+
+      .cardWrap {
+          width: 95vw;
+      }
+
+      .card-slider img,
+      .card-slider video {
+          height: min(300px, 60vw);
+      }
   }

@@ -37,14 +37,26 @@ const mouse = new THREE.Vector2();
 
 let hideLoaderTime = 3000;
 
+// iOS 디바이스 감지 (전역 변수)
+const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
 const textureLoader = new THREE.TextureLoader();
 const imageCache = {};
 
 const base = import.meta.env.BASE_URL || "/";
-const res = await fetch(`${base}etc/detail-files.json`);
-const fileMap = await res.json();
+let fileMap = {};
 
-console.log(fileMap);
+// iOS Safari 호환성을 위해 top-level await 제거
+async function loadFileMap() {
+    try {
+        const res = await fetch(`${base}etc/detail-files.json`);
+        fileMap = await res.json();
+        console.log(fileMap);
+    } catch (error) {
+        console.error("Failed to load file map:", error);
+        fileMap = {};
+    }
+}
 
 async function preloadImages(fileMap) {
     // fileMap = { "11": { "1-1": "detailpage/11/1-1.jpeg", ... }, ... }
@@ -80,21 +92,50 @@ function getImage(path) {
     return imageCache[key];
 }
 
-await preloadImages(fileMap);
+// preloadImages 호출을 init 함수 내부로 이동
 
-function init() {
+async function init() {
+    // 파일 맵 로드
+    await loadFileMap();
+    
+    // 이미지 프리로드
+    await preloadImages(fileMap);
     // 1. 렌더러 설정
     canvasElement = document.querySelector('#three-canvas');
-    renderer = new THREE.WebGLRenderer({
+    
+    // Ensure canvas element exists and is properly sized
+    if (!canvasElement) {
+        console.error('Canvas element not found!');
+        return;
+    }
+    
+    // iOS Safari 최적화를 위한 WebGL 설정
+    const webglOptions = {
         canvas: canvasElement,
-        antialias: true,
+        antialias: !isIOSDevice, // iOS에서는 antialias 비활성화로 성능 향상
         alpha: true,
-        depthWrite: false
-
-    });
+        depthWrite: false,
+        powerPreference: isIOSDevice ? "default" : "high-performance", // iOS에서는 default 사용
+        preserveDrawingBuffer: isIOSDevice, // iOS에서 화면 캡처 지원
+        failIfMajorPerformanceCaveat: false // iOS에서 성능 문제 시에도 계속 진행
+    };
+    
+    renderer = new THREE.WebGLRenderer(webglOptions);
+    
+    // Set initial size
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio > 1 ? 2 : 1);
+    
+    // Mobile-optimized pixel ratio
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    renderer.setPixelRatio(isMobileDevice ? Math.min(window.devicePixelRatio, 1.5) : (window.devicePixelRatio > 1 ? 2 : 1));
     renderer.shadowMap.enabled = false;
+    
+    // Ensure canvas CSS is properly set
+    canvasElement.style.width = '100vw';
+    canvasElement.style.height = '100vh';
+    canvasElement.style.position = 'fixed';
+    canvasElement.style.top = '0';
+    canvasElement.style.left = '0';
 
 
     // 2. 씬 설정
@@ -107,7 +148,15 @@ function init() {
         0.1,
         100
     );
-    camera.position.set(0, 8, 25); // 카드들이 잘 보이도록 카메라 위치 조정
+    
+    // Mobile-optimized camera positioning
+    if (isMobileDevice) {
+        // Adjust camera position for mobile devices
+        camera.position.set(0, 6, 20);
+    } else {
+        camera.position.set(0, 8, 25); // 카드들이 잘 보이도록 카메라 위치 조정
+    }
+    
     scene.add(camera);
 
     // 4. 컨트롤 설정
@@ -115,15 +164,23 @@ function init() {
     controls.enableDamping = true;
     controls.enableZoom = false; // 줌 기능 비활성화
     controls.enablePan = false; // 패닝(이동) 기능 비활성화
+    
+    // Mobile touch optimizations
+    if (isMobileDevice) {
+        controls.touches = {
+            ONE: THREE.TOUCH.ROTATE,
+            TWO: THREE.TOUCH.DOLLY_PAN
+        };
+        controls.dampingFactor = 0.1;
+    }
 
     // --- [2단계 수정] 카메라 회전 각도 제한 ---
     // 수직(위아래) 회전 제한. 0은 맨 위(북극), Math.PI는 맨 아래(남극)
     controls.minPolarAngle = Math.PI / 3; // 아래로는 60도 이상 못 봄
     controls.maxPolarAngle = Math.PI / 2; // 위로는 수평 이상 못 봄
 
-    // 수평(좌우) 회전 제한
-    controls.minAzimuthAngle = -Math.PI * 0.2; // 왼쪽으로 45도
-    controls.maxAzimuthAngle = Math.PI * 0.2;  // 오른쪽으로 45도
+    // 화면 넓이에 따른 수평(좌우) 회전 제한 설정
+    setAzimuthAngleLimits();
     // --- 여기까지 수정 ---
 
     // 5. 조명 설정
@@ -154,7 +211,9 @@ function init() {
 
     // 7. 이벤트 리스너 등록
     window.addEventListener('resize', onWindowResize);
+    window.addEventListener('orientationchange', handleOrientationChange);
     window.addEventListener("click", handleClick);
+    window.addEventListener("touchstart", handleTouch);
 }
 
 
@@ -178,6 +237,23 @@ window.addEventListener("mouseup", () => {
 
 function handleClick(e) {
     checkDrag(e);
+}
+
+// Mobile touch event handling (iOS 최적화)
+function handleTouch(e) {
+    // iOS Safari에서 preventDefault 호출 최적화
+    if (e.cancelable) {
+        e.preventDefault();
+    }
+    
+    if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        const clickEvent = {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        };
+        checkDrag(clickEvent);
+    }
 }
 
 function checkDrag(event) {
@@ -225,9 +301,13 @@ function loadSVGAsTexture(url, targetSize = 2048) {
         const img = new Image();
         img.src = url;
         img.onload = () => {
+            // Mobile-optimized texture size
+            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const optimizedSize = isMobileDevice ? Math.min(targetSize, 1024) : targetSize;
+            
             // 원본 비율
             const aspect = img.width / img.height;
-            const height = targetSize;
+            const height = optimizedSize;
             const width = height * aspect;
 
             // 고해상도 캔버스 생성
@@ -241,7 +321,7 @@ function loadSVGAsTexture(url, targetSize = 2048) {
             ctx.drawImage(img, 0, 0, width, height);
 
             const tex = new THREE.CanvasTexture(canvas);
-            tex.anisotropy = renderer.capabilities.getMaxAnisotropy?.() ?? 4;
+            tex.anisotropy = renderer.capabilities.getMaxAnisotropy?.() ?? (isMobileDevice ? 2 : 4);
             tex.needsUpdate = true;
             resolve({ tex, aspect });
         };
@@ -264,7 +344,7 @@ async function createCards() {
         // (1) back.svg (고해상도 로드)
         const { tex: backTex, aspect: backAspect } = await loadSVGAsTexture(
             `${import.meta.env.BASE_URL}mainpage/SVG/back${i + 1}.svg`,
-            4096
+            2048
         );
 
         const backHeight = CARD_HEIGHT;
@@ -288,7 +368,7 @@ async function createCards() {
         const offset = cardOffsets[i];
         const { tex: cardTex, aspect } = await loadSVGAsTexture(
             `${import.meta.env.BASE_URL}mainpage/SVG/card${i + 1}.svg`,
-            4096
+            2048
         );
         const height = cardSizeRate * 0.9;
         const width = height * aspect;
@@ -312,7 +392,7 @@ async function createCards() {
         // (3) front.svg (고해상도 로드)
         const { tex: frontTex, aspect: frontAspect } = await loadSVGAsTexture(
             `${import.meta.env.BASE_URL}mainpage/SVG/front${i + 1}.svg`,
-            4096
+            2048
         );
         const frontHeight = CARD_HEIGHT;
         const frontWidth = frontHeight * frontAspect;
@@ -441,16 +521,30 @@ function animate() {
 
     // ✅ 첫 렌더링 후 로딩화면 숨기기 (한번만 실행)
     if (!animate._done) {
+        // Mobile devices need more time to load textures
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const loadTime = isIOSDevice ? 5000 : (isMobileDevice ? 4000 : hideLoaderTime);
+        
         setTimeout(() => {
             hideLoader();
-        }, hideLoaderTime);
+        }, loadTime);
         animate._done = true;
     }
 
+    // iOS에서 메모리 관리 - 주기적으로 가비지 컬렉션 힌트
+    if (isIOSDevice && Math.random() < 0.001) { // 0.1% 확률로 실행
+        if (window.gc) {
+            window.gc();
+        }
+    }
 }
 
-init();
-animate();
+// iOS Safari 호환성을 위해 async init 호출
+init().then(() => {
+    animate();
+}).catch(error => {
+    console.error("Initialization failed:", error);
+});
 
 
 
@@ -464,6 +558,7 @@ const HEAD = -360; // 화면 하단에 보일 높이(px)
 
 function animateToDetail(clickedGroup) {
     window.removeEventListener("click", handleClick);
+    window.removeEventListener("touchstart", handleTouch);
     window.removeEventListener('mousemove', onMouseMove); // ✅ hover off
     isDetailMode = true;
     controls.enabled = false;
@@ -582,6 +677,7 @@ function goBackToHome() {
 
         controls.enabled = true;
         window.addEventListener("click", handleClick);
+        window.addEventListener("touchstart", handleTouch);
         window.addEventListener('mousemove', onMouseMove);
         isDetailMode = false;
     });
@@ -929,7 +1025,7 @@ function setupPinnedStack(stack) {
         return;
     }
 
-    const HEAD = -1080;
+    const HEAD = -980;
 
     const vh = window.innerHeight;
     const cardH = wrap.offsetHeight;
@@ -985,9 +1081,65 @@ function hideDetailPage() {
 window.addEventListener("mousemove", onMouseMove);
 
 function onWindowResize() {
+    // Update camera aspect ratio
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
+    
+    // Update renderer size
     renderer.setSize(window.innerWidth, window.innerHeight);
+    
+    // Update pixel ratio for mobile devices
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    renderer.setPixelRatio(isMobileDevice ? Math.min(window.devicePixelRatio, 1.5) : (window.devicePixelRatio > 1 ? 2 : 1));
+    
+    // Ensure canvas CSS is maintained
+    if (canvasElement) {
+        canvasElement.style.width = '100vw';
+        canvasElement.style.height = '100vh';
+        canvasElement.style.position = 'fixed';
+        canvasElement.style.top = '0';
+        canvasElement.style.left = '0';
+    }
+    
+    // Adjust camera position for mobile devices on resize
+    if (isMobileDevice) {
+        camera.position.set(0, 6, 20);
+    } else {
+        camera.position.set(0, 8, 25);
+    }
+    
+    // 화면 크기 변경 시 각도 제한도 업데이트
+    setAzimuthAngleLimits();
+    
+    // Force a render to ensure everything updates properly
+    renderer.render(scene, camera);
+}
+
+// Handle orientation changes on mobile devices
+function handleOrientationChange() {
+    // Small delay to ensure the viewport has updated
+    setTimeout(() => {
+        onWindowResize();
+    }, 100);
+}
+
+// 화면 넓이에 따른 수평 회전 각도 제한 설정
+function setAzimuthAngleLimits() {
+    const screenWidth = window.innerWidth;
+    let angleMultiplier;
+    
+    if (screenWidth >= 1180) {
+        angleMultiplier = 0.2; // 큰 화면에서는 제한적
+    } else if (screenWidth <= 820) {
+        angleMultiplier = 0.3; // 작은 화면에서는 더 자유롭게
+    } else {
+        // 820px ~ 1180px 사이에서는 선형 보간
+        const ratio = (screenWidth - 820) / (1180 - 820);
+        angleMultiplier = 0.3 - (0.3 - 0.2) * ratio;
+    }
+    
+    controls.minAzimuthAngle = -Math.PI * angleMultiplier;
+    controls.maxAzimuthAngle = Math.PI * angleMultiplier;
 }
 
 function updateCursor(x, y) {
