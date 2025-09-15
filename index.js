@@ -1039,7 +1039,7 @@ function setupPinnedStack(stack) {
         scrollTrigger: {
             trigger: stack,
             start: "top top",
-            end: () => "+=" + (cards.length * 600)-1200, // ✅ 1200 → 600으로 줄임
+            end: () => "+=" + (cards.length * 600), // ✅ 1200 → 600으로 줄임
             scrub: 0.6,
             pin: true,
             pinSpacing: true,

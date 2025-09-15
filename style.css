@@ -193,8 +193,6 @@
       scroll-behavior: auto;
       overscroll-behavior: contain;
       touch-action: pan-y;
-      /* 스크롤을 70% 지점에서 제한 */
-      max-height: 70vh;
   }
 
   /* pinned stack 영역: 한 화면을 고정하여 카드만 움직임 */
