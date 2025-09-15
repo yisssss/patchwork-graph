@@ -120,11 +120,11 @@
   .sub-title2 {
       position: absolute;
       width: 800px;
-      top: 42%;
+      top: 44%;
       left: 50%;
       /* transform을 사용해 정확한 중앙 정렬 */
       transform: translate(-50%, -50%);
-      font-size: 1.5rem;
+      font-size: 2rem;
       font-weight: 200;
       text-align: center;
       letter-spacing: 2px;
@@ -193,6 +193,8 @@
       scroll-behavior: auto;
       overscroll-behavior: contain;
       touch-action: pan-y;
+      /* 스크롤을 70% 지점에서 제한 */
+      max-height: 70vh;
   }
 
   /* pinned stack 영역: 한 화면을 고정하여 카드만 움직임 */
@@ -388,7 +390,6 @@
       transform: translateX(-50%);
       max-width: 800px;
       margin: 120px auto;
-      padding-top: 148px;
       text-align: center;
   }
 
@@ -409,19 +410,19 @@
 
   .detail-intro h2 {
       color: #1d2088;
-      font-family: "sandoll-myeongjoneo1", sans-serif;
+      font-family: "altesse-std-24pt", "sandoll-myeongjoneo1", sans-serif;
       font-weight: 500;
       font-style: normal;
       position: relative;
       width: 800px;
-      top: 20%;
       left: 50%;
       /* transform을 사용해 정확한 중앙 정렬 */
       transform: translate(-50%, -50%);
-      font-size: 2rem;
-      font-weight: 200;
+      font-size: 1.5rem;
+      font-weight: 600;
       text-align: center;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
+      margin: 40px 0 0 0;
   }
 
 
@@ -434,15 +435,29 @@
       width: 800px;
       left: 50%;
       /* transform을 사용해 정확한 중앙 정렬 */
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       font-size: 1rem;
       text-align: center;
       letter-spacing: 0px;
       line-height: 24px;
-            white-space: pre-line;
-    padding-top:120px;
+      white-space: pre-line;
+      margin: 0 0 60px 0;
   }
 
+  .detail-intro l {
+    color: #1d2088;
+    font-family: "sandoll-myeongjoneo1", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    position: relative;
+    width: 800px;
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 0px;
+    line-height: 24px;
+    white-space: pre-line;
+    margin: 0 0 30px 0;
+}
 
   #detail-nav {
       position: fixed;
@@ -491,14 +506,19 @@
           line-height: 350%;
       }
 
-      .detail-intro h1 {
-          font-size: 1.2rem;
-      }
+       .detail-intro h1 {
+           font-size: 1.2rem;
+       }
 
-      .detail-intro p {
-          font-size: 0.8rem;
-          padding-top: 80px;
-      }
+       .detail-intro h2 {
+           font-size: 1rem;
+           margin: 20px 0 10px 0;
+       }
+
+       .detail-intro p {
+           font-size: 0.8rem;
+           margin: 0 0 20px 0;
+       }
 
       .card {
           width: 95vw;

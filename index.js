@@ -97,18 +97,18 @@ function getImage(path) {
 async function init() {
     // 파일 맵 로드
     await loadFileMap();
-    
+
     // 이미지 프리로드
     await preloadImages(fileMap);
     // 1. 렌더러 설정
     canvasElement = document.querySelector('#three-canvas');
-    
+
     // Ensure canvas element exists and is properly sized
     if (!canvasElement) {
         console.error('Canvas element not found!');
         return;
     }
-    
+
     // iOS Safari 최적화를 위한 WebGL 설정
     const webglOptions = {
         canvas: canvasElement,
@@ -119,17 +119,17 @@ async function init() {
         preserveDrawingBuffer: isIOSDevice, // iOS에서 화면 캡처 지원
         failIfMajorPerformanceCaveat: false // iOS에서 성능 문제 시에도 계속 진행
     };
-    
+
     renderer = new THREE.WebGLRenderer(webglOptions);
-    
+
     // Set initial size
     renderer.setSize(window.innerWidth, window.innerHeight);
-    
+
     // Mobile-optimized pixel ratio
     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     renderer.setPixelRatio(isMobileDevice ? Math.min(window.devicePixelRatio, 1.5) : (window.devicePixelRatio > 1 ? 2 : 1));
     renderer.shadowMap.enabled = false;
-    
+
     // Ensure canvas CSS is properly set
     canvasElement.style.width = '100vw';
     canvasElement.style.height = '100vh';
@@ -148,7 +148,7 @@ async function init() {
         0.1,
         100
     );
-    
+
     // Mobile-optimized camera positioning
     if (isMobileDevice) {
         // Adjust camera position for mobile devices
@@ -156,7 +156,7 @@ async function init() {
     } else {
         camera.position.set(0, 8, 25); // 카드들이 잘 보이도록 카메라 위치 조정
     }
-    
+
     scene.add(camera);
 
     // 4. 컨트롤 설정
@@ -164,7 +164,7 @@ async function init() {
     controls.enableDamping = true;
     controls.enableZoom = false; // 줌 기능 비활성화
     controls.enablePan = false; // 패닝(이동) 기능 비활성화
-    
+
     // Mobile touch optimizations
     if (isMobileDevice) {
         controls.touches = {
@@ -245,7 +245,7 @@ function handleTouch(e) {
     if (e.cancelable) {
         e.preventDefault();
     }
-    
+
     if (e.touches.length === 1) {
         const touch = e.touches[0];
         const clickEvent = {
@@ -285,7 +285,7 @@ const cardOffsets = [
     { x: 0.3, y: -0.2, z: 0.01, rotZ: 0 },   // card0
     { x: 0, y: -0.4, z: 0.01, rotZ: 0 },    // card1
     { x: -0.1, y: -0.2, z: 0.01, rotZ: 0 },   // card2
-    { x: 0, y: 0.1, z: 0.01, rotZ: 0 },  // card3
+    { x: -0.05, y: 0.1, z: 0.01, rotZ: 0 },  // card3
     { x: -0.05, y: 0, z: 0.01, rotZ: 0 },   // card4
     { x: 0, y: -0.2, z: 0.01, rotZ: 0 },   // card5
     { x: -0.15, y: -0.2, z: 0.01, rotZ: 0 },   // card5
@@ -304,7 +304,7 @@ function loadSVGAsTexture(url, targetSize = 2048) {
             // Mobile-optimized texture size
             const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const optimizedSize = isMobileDevice ? Math.min(targetSize, 1024) : targetSize;
-            
+
             // 원본 비율
             const aspect = img.width / img.height;
             const height = optimizedSize;
@@ -524,7 +524,7 @@ function animate() {
         // Mobile devices need more time to load textures
         const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const loadTime = isIOSDevice ? 5000 : (isMobileDevice ? 4000 : hideLoaderTime);
-        
+
         setTimeout(() => {
             hideLoader();
         }, loadTime);
@@ -705,10 +705,24 @@ async function buildDetailPage(section) {
 
     const introData = await loadSectionIntro(section);
 
-    intro.innerHTML = `
+    // concept과 rule을 포함한 intro HTML 생성
+    let introHTML = `
   <h1>${introData.title}</h1>
-  <p>${introData.description}</p>
-`;
+  <h2>Party Concept</h2>
+  <p>${introData.concept}</p>`;
+
+    // rule이 비어있지 않은 경우에만 추가
+    if (introData.rule && introData.rule.trim() !== "") {
+        introHTML += `
+  <h2>Party Rule</h2>
+  <p>${introData.rule}</p>`;
+    }
+
+    introHTML += `
+      <h2>How to Join</h2>
+  <l>${introData.description}</l>`;
+
+    intro.innerHTML = introHTML;
     scroller.appendChild(intro);
 
     // 4) 카드 스택
@@ -781,43 +795,43 @@ async function makeCards(section, wrap) {
         const workKeys = Object.keys(works);
         let images = [];
 
-for (const workIndex of workKeys) {
-        const work = works[workIndex];   // ✅ 다시 추가
+        for (const workIndex of workKeys) {
+            const work = works[workIndex];   // ✅ 다시 추가
 
-    const key = `${artistIndex}-${workIndex}`;
-    const filePath = fileMap[section]?.[key];  // ✅ JSON에서 확정된 경로 가져오기
-    let el;
+            const key = `${artistIndex}-${workIndex}`;
+            const filePath = fileMap[section]?.[key];  // ✅ JSON에서 확정된 경로 가져오기
+            let el;
 
-    if (!filePath) {
-        console.warn("파일 없음:", section, key);
-        continue;
-    }
+            if (!filePath) {
+                console.warn("파일 없음:", section, key);
+                continue;
+            }
 
-    if (section === 2 || section === 7 && filePath.endsWith(".mp4")) {
-        // ✅ ch2, ch7은 무조건 video
-        el = document.createElement("video");
-        el.src = `${base}${filePath}`;
-        el.loop = true;
-        el.playsInline = true;
-        el.muted = true;
-        el.controls = true;
-    } else {
-        // ✅ 확장자 후보 탐색 대신 fileMap에 확정된 경로 사용
-        el = document.createElement("img");
+            if (section === 2 || section === 7 && filePath.endsWith(".mp4")) {
+                // ✅ ch2, ch7은 무조건 video
+                el = document.createElement("video");
+                el.src = `${base}${filePath}`;
+                el.loop = true;
+                el.playsInline = true;
+                el.muted = true;
+                el.controls = true;
+            } else {
+                // ✅ 확장자 후보 탐색 대신 fileMap에 확정된 경로 사용
+                el = document.createElement("img");
 
-        const cached = getImage(filePath);   // ✅ preload 캐시 먼저 확인
-        if (cached) {
-            el.src = cached.src;             // 메모리 캐시 사용
-        } else {
-            el.src = `${base}${filePath}`;   // fallback
+                const cached = getImage(filePath);   // ✅ preload 캐시 먼저 확인
+                if (cached) {
+                    el.src = cached.src;             // 메모리 캐시 사용
+                } else {
+                    el.src = `${base}${filePath}`;   // fallback
+                }
+                el.alt = works[workIndex].title;
+            }
+
+            el.style.display = (workIndex === "1") ? "block" : "none";
+            slider.appendChild(el);
+            images.push({ el, work });
         }
-        el.alt = works[workIndex].title;
-    }
-
-    el.style.display = (workIndex === "1") ? "block" : "none";
-    slider.appendChild(el);
-    images.push({ el, work });
-}
 
 
         // --- 캡션 ---
@@ -910,21 +924,7 @@ for (const workIndex of workKeys) {
                 capInfo.textContent = work.information || "";
             }
         }
-        if (section === 8) {
-            console.log("섹션 8");
-            const infoPs = card.querySelectorAll(".caption p");
-            if (infoPs.length > 1) {
-                const infoP = infoPs[1];
-                const link = document.createElement("a");
-                link.href = "https://www.instagram.com/graph._.party/";
-                link.target = "_blank";
-                link.textContent = infoP.textContent;
-                infoP.textContent = "";      // 기존 텍스트 지우고
-                console.log("링크 삽입");
-
-                infoP.appendChild(link);     // <a> 삽입
-            }
-        }
+        // Section 8 링크는 showDetailPage에서 처리
 
         wrap.appendChild(card);
     }
@@ -1039,7 +1039,7 @@ function setupPinnedStack(stack) {
         scrollTrigger: {
             trigger: stack,
             start: "top top",
-            end: () => "+=" + (cards.length * 600), // ✅ 1200 → 600으로 줄임
+            end: () => "+=" + (cards.length * 600)-1200, // ✅ 1200 → 600으로 줄임
             scrub: 0.6,
             pin: true,
             pinSpacing: true,
@@ -1062,6 +1062,13 @@ function showDetailPage(section) {
     const page = document.getElementById("detail-page");
     page.classList.add("visible");
     gsap.fromTo(page, { opacity: 0 }, { opacity: 1, duration: 0.9, ease: "power2.inOut" });
+
+    // Section 8에서 링크 생성 (다른 섹션에서 넘어올 때도 적용)
+    if (section === 8) {
+        setTimeout(() => {
+            createSection8Links();
+        }, 100); // DOM이 완전히 렌더링된 후 실행
+    }
 }
 
 function hideDetailPage() {
@@ -1075,6 +1082,27 @@ function hideDetailPage() {
     });
 }
 
+// Section 8에서 링크 생성 함수
+function createSection8Links() {
+    const cards = document.querySelectorAll(".card");
+    cards.forEach(card => {
+        const infoPs = card.querySelectorAll(".caption p");
+        if (infoPs.length > 1) {
+            const infoP = infoPs[1];
+            // 이미 링크가 있는지 확인
+            if (!infoP.querySelector("a")) {
+                const link = document.createElement("a");
+                link.href = "https://www.instagram.com/graph._.party/";
+                link.target = "_blank";
+                link.textContent = infoP.textContent;
+                infoP.textContent = "";      // 기존 텍스트 지우고
+                infoP.appendChild(link);     // <a> 삽입
+                console.log("Section 8 링크 생성됨");
+            }
+        }
+    });
+}
+
 
 ////////////////////////////////////////////////////////----------window resizing--------------------/////////////////////////////////////
 
@@ -1084,14 +1112,14 @@ function onWindowResize() {
     // Update camera aspect ratio
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    
+
     // Update renderer size
     renderer.setSize(window.innerWidth, window.innerHeight);
-    
+
     // Update pixel ratio for mobile devices
     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     renderer.setPixelRatio(isMobileDevice ? Math.min(window.devicePixelRatio, 1.5) : (window.devicePixelRatio > 1 ? 2 : 1));
-    
+
     // Ensure canvas CSS is maintained
     if (canvasElement) {
         canvasElement.style.width = '100vw';
@@ -1100,17 +1128,17 @@ function onWindowResize() {
         canvasElement.style.top = '0';
         canvasElement.style.left = '0';
     }
-    
+
     // Adjust camera position for mobile devices on resize
     if (isMobileDevice) {
         camera.position.set(0, 6, 20);
     } else {
         camera.position.set(0, 8, 25);
     }
-    
+
     // 화면 크기 변경 시 각도 제한도 업데이트
     setAzimuthAngleLimits();
-    
+
     // Force a render to ensure everything updates properly
     renderer.render(scene, camera);
 }
@@ -1127,7 +1155,7 @@ function handleOrientationChange() {
 function setAzimuthAngleLimits() {
     const screenWidth = window.innerWidth;
     let angleMultiplier;
-    
+
     if (screenWidth >= 1180) {
         angleMultiplier = 0.2; // 큰 화면에서는 제한적
     } else if (screenWidth <= 820) {
@@ -1137,7 +1165,7 @@ function setAzimuthAngleLimits() {
         const ratio = (screenWidth - 820) / (1180 - 820);
         angleMultiplier = 0.3 - (0.3 - 0.2) * ratio;
     }
-    
+
     controls.minAzimuthAngle = -Math.PI * angleMultiplier;
     controls.maxAzimuthAngle = Math.PI * angleMultiplier;
 }
