@@ -20,7 +20,7 @@
       "1": {
         "title": "무제",
         "medium": "디지털 작업, 리소프린트",
-        "information": ""
+        "information": "주륵주륵륵"
       }
     }
   },
